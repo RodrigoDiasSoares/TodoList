@@ -27,6 +27,7 @@ public class ToDoDAO implements IToDoDAO {
     public boolean salvar(ToDo toDo) {
         ContentValues cv = new ContentValues();
         cv.put("nome",toDo.getToDo());
+        cv.put("status",toDo.mStatus());
         try{
             escreve.insert(DbHelper.TABLE_TODO,null, cv);
 
@@ -42,6 +43,7 @@ public class ToDoDAO implements IToDoDAO {
     public boolean atualizar(ToDo toDo) {
         ContentValues cv = new ContentValues();
         cv.put("nome",toDo.getToDo());
+        cv.put("status",toDo.mStatus());
         try{
             String[] args = {toDo.getId().toString()};
             escreve.update(DbHelper.TABLE_TODO,cv,"id=?",args);
@@ -77,8 +79,14 @@ public class ToDoDAO implements IToDoDAO {
             ToDo toDo = new ToDo();
             Long id = cursor.getLong(cursor.getColumnIndex("id"));
             String nameToDo = cursor.getString(cursor.getColumnIndex("nome"));
+            int status = cursor.getInt(cursor.getColumnIndex("status"));
             toDo.setId(id);
             toDo.setToDo(nameToDo);
+            if(status !=0){
+                toDo.setStatus(true);
+            }else{
+                toDo.setStatus(false);
+            }
             toDoList.add(toDo);
             Log.i("ToDoDao", toDo.getToDo() );
         }

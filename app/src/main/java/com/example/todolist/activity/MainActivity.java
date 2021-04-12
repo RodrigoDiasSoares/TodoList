@@ -1,6 +1,7 @@
 package com.example.todolist.activity;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,81 +21,42 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity{
     private RecyclerView recyclerView;
     private AdapterToDoList adapter;
     private List<ToDo> toDoList = new ArrayList<>();
-    private ToDo selectedToDo;
+    ToDoDAO toDoDAO;
+    private boolean initCongratulation = false;
+    public void Timer(){
+        Timer timer = new Timer();
+        Task task = new Task();
+
+        timer.schedule(task, 1000, 1000);
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
         recyclerView = findViewById(R.id.recyclerViewToDoList);
-        recyclerView.addOnItemTouchListener(
-                new RecyclerItemClickListener(
-                        getApplicationContext(),
-                        recyclerView,
-                        new RecyclerItemClickListener.OnItemClickListener() {
-                            @Override
-                            public void onItemClick(View view, int position) {
-                                ToDo selectedToDo = toDoList.get(position);
-                                Intent intent = new Intent(MainActivity.this, AddTarefaActivity.class);
-                                intent.putExtra("selectedToDo", selectedToDo);
-                                startActivity(intent);
-                            }
+        toDoDAO = new ToDoDAO(getApplicationContext());
 
-                            @Override
-                            public void onLongItemClick(View view, int position) {
-                                selectedToDo = toDoList.get(position);
-                                AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
-                                dialog.setTitle("Confirmar exclusão");
-                                dialog.setMessage("Deseja excluir a tarefa: "+selectedToDo.getToDo() + "?");
-
-                                dialog.setPositiveButton("Sim", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        ToDoDAO toDoDAO = new ToDoDAO(getApplicationContext());
-                                        if(toDoDAO.deletar(selectedToDo)){
-
-                                            carregarLista();
-                                            Toast.makeText(getApplicationContext(),
-                                                    "Tarefa deletada com sucesso!",
-                                                    Toast.LENGTH_SHORT).show();
-                                        }else{
-                                            Toast.makeText(getApplicationContext(),
-                                                    "Erro ao deletar Tarefa!",
-                                                    Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-                                });
-                                dialog.setNegativeButton("Não", null);
-                                dialog.create();
-                                dialog.show();
-                            }
-
-                            @Override
-                            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-
-                            }
-                        }
-                )
-        );
-
-
+        Timer();
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -102,49 +64,62 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(getApplicationContext(),AddTarefaActivity.class);
                 startActivity(intent);
-
             }
         });
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
+    public final void carregarLista(){
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-    public void carregarLista(){
-
-        ToDoDAO toDoDAO = new ToDoDAO(getApplicationContext());
+        ToDoDAO toDoDAO = new ToDoDAO(this);
         toDoList = toDoDAO.listar();
         adapter = new AdapterToDoList(toDoList);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(adapter);
-        recyclerView.addItemDecoration(new DividerItemDecoration(getApplicationContext(), LinearLayout.VERTICAL));
         Log.e("INFO","Lista Carregada com sucesso");
+
     }
+    public void progress(){
+        boolean check = false;
+        List<ToDo> list = adapter.allChecked();
+        for(int i = 0; i < list.size();i++){
+            if (list.get(i).getStatus()){
+                check = true;
+            }else{
+                check = false;
+            }
+        }
+        if (check == true){
+            initCongratulation = true;
+            startActivity(new Intent(this, CongratulationsActivity.class));
+            for (int i = 0; i < list.size(); i++){
+                toDoDAO.deletar(list.get(i));
+            }
+            finish();
+        }
+    }
+
 
     @Override
     protected void onStart() {
         carregarLista();
+
         super.onStart();
     }
 
+    class Task extends TimerTask {
+
+        @Override
+        public void run() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if(initCongratulation == false) {
+                        progress();
+                    }
+                }
+            });
+        }
+    }
 }
