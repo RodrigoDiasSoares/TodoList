@@ -1,40 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:background="@drawable/shape_aredondado"
-    android:layout_marginBottom="16dp"
-    android:padding="5dp">
+    android:layout_width="wrap_content"
+    xmlns:android="http://schemas.android.com/apk/res/android"
 
-    <TextView
-        android:id="@+id/textViewAdapter"
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="55dp"
-        android:layout_marginStart="16dp"
-        android:fontFamily="@font/marko_one"
-        android:gravity="center|left"
-        android:text="Tarefa"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="@color/white"
-        />
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="0.15"
-        android:orientation="horizontal"
-        android:gravity="center"
+    android:background="@drawable/shape_aredondado">
+
+    <RelativeLayout
+        android:id="@+id/card_view"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="#fff"
         >
 
-        <Button
-            android:id="@+id/checkboxAdapter"
-            style="@style/Widget.AppCompat.CompoundButton.CheckBox"
+        <RelativeLayout
+
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@drawable/shape_aredondado"
+            android:orientation="horizontal"
+            android:layout_centerInParent="true"
+            android:layout_gravity="center"
+            >
+
+            <Button
+                android:id="@+id/btnEdit"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_toStartOf="@id/btnDelete"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_centerInParent="true"
+                android:layout_marginEnd="60dp"
+                android:layout_marginRight="40dp"
+                android:background="@drawable/ic_edit"
+                android:layout_toLeftOf="@id/btnDelete" />
+
+            <Button
+                android:id="@+id/btnDelete"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_centerInParent="true"
+                android:background="@drawable/ic_delete" />
+        </RelativeLayout>
+
+        <RelativeLayout
+
+            android:id="@+id/layoutABorrar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_gravity="center_vertical|center_horizontal"
-            android:background="@drawable/square"/>
-    </LinearLayout>
+            android:background="@drawable/shape_aredondado"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/textViewAdapter"
+                android:layout_width="wrap_content"
+                android:layout_height="55dp"
+                android:layout_marginStart="16dp"
+                android:layout_alignParentLeft="true"
+                android:layout_centerInParent="true"
+                android:fontFamily="@font/marko_one"
+                android:gravity="center_vertical|center_horizontal"
+                android:text="Tarefa"
+                android:textColor="@color/black"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:layout_marginLeft="16dp" />
+
+
+
+                <Button
+                    android:id="@+id/checkboxAdapter"
+                    style="@style/Widget.AppCompat.CompoundButton.CheckBox"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerInParent="true"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/ic_square"
+                    android:layout_marginRight="8dp" />
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="1dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginLeft="16dp"
+                android:background="@color/black"
+                android:layout_alignBottom="@id/checkboxAdapter"/>
+
+
+        </RelativeLayout>
+
+    </RelativeLayout>
 </LinearLayout>

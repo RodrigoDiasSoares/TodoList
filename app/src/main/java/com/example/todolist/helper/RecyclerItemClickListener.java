@@ -1,60 +1,81 @@
 package com.example.todolist.helper;
 
 import android.content.Context;
+import android.graphics.Canvas;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.todolist.adapter.AdapterToDoList;
 
-public class RecyclerItemClickListener implements RecyclerView.OnItemTouchListener {
 
-    private OnItemClickListener mListener;
-    GestureDetector mGestureDetector;
+public class RecyclerItemClickListener extends ItemTouchHelper.SimpleCallback {
+
+    private RecyclerItemTochHelperListener listener;
+
+    public RecyclerItemClickListener(int dragDirs, int swipeDirs, RecyclerItemTochHelperListener listener) {
+        super(dragDirs, swipeDirs);
+        this.listener = listener;
+    }
 
     @Override
-    public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-        View childView = rv.findChildViewUnder(e.getX(), e.getY());
-        if (childView != null && mListener != null && mGestureDetector.onTouchEvent(e)) {
-            mListener.onItemClick(childView, rv.getChildAdapterPosition(childView));
-            return true;
+    public boolean onMove(@NonNull RecyclerView recyclerView,
+                          @NonNull RecyclerView.ViewHolder viewHolder,
+                          @NonNull RecyclerView.ViewHolder target) {
+        return true;
+    }
+
+    @Override
+    public void onSelectedChanged(@Nullable RecyclerView.ViewHolder viewHolder, int actionStates){
+        if (viewHolder != null){
+            View foregroundView = ((AdapterToDoList.MyViewHolder) viewHolder).layoutABorrar;
+            getDefaultUIUtil().onSelected(foregroundView);
         }
-        return false;
     }
 
     @Override
-    public void onTouchEvent(RecyclerView rv, MotionEvent e) {
-
+    public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+        listener.onSwipe(viewHolder, direction, viewHolder.getAdapterPosition());
     }
 
     @Override
-    public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+    public void onChildDrawOver(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
+                                RecyclerView.ViewHolder viewHolder, float dX, float dY,
+                                int actionState, boolean isCurrentlyActive) {
 
+        View foregroundView = ((AdapterToDoList.MyViewHolder) viewHolder).layoutABorrar;
+        getDefaultUIUtil().onDrawOver(c, recyclerView, foregroundView,dX, dY,
+                actionState,isCurrentlyActive);
     }
 
-    public interface OnItemClickListener extends AdapterView.OnItemClickListener {
-        public void onItemClick(View view, int position);
-
-        public void onLongItemClick(View view, int position);
+    @Override
+    public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+        View foregroundView = ((AdapterToDoList.MyViewHolder) viewHolder).layoutABorrar;
+        getDefaultUIUtil().clearView(foregroundView);
     }
 
-    public RecyclerItemClickListener(Context context, final RecyclerView recyclerView, OnItemClickListener listener) {
-        mListener = listener;
-        mGestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
-            @Override
-            public boolean onSingleTapUp(MotionEvent e) {
-                return true;
-            }
+    @Override
+    public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
+                            @NonNull RecyclerView.ViewHolder viewHolder, float dX,
+                            float dY, int actionState, boolean isCurrentlyActive) {
+        dX = (float) (dX * 0.3);
+        View foregroundView = ((AdapterToDoList.MyViewHolder) viewHolder).layoutABorrar;
+        getDefaultUIUtil().onDraw(c, recyclerView, foregroundView, dX, dY,
+                actionState,isCurrentlyActive);
+    }
 
-            @Override
-            public void onLongPress(MotionEvent e) {
-                View child = recyclerView.findChildViewUnder(e.getX(), e.getY());
-                if (child != null && mListener != null) {
-                    mListener.onLongItemClick(child, recyclerView.getChildAdapterPosition(child));
-                }
-            }
-        });
+    @Override
+    public int convertToAbsoluteDirection(int flags, int layoutDirection) {
+        return super.convertToAbsoluteDirection(flags, layoutDirection);
+    }
 
+    public interface RecyclerItemTochHelperListener{
+        void onSwipe(RecyclerView.ViewHolder viewHolder, int direction, int position);
     }
 }

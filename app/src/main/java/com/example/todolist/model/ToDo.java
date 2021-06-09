@@ -2,12 +2,16 @@ package com.example.todolist.model;
 
 import android.widget.CheckBox;
 
+import com.example.todolist.observer.Observador;
+
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public class ToDo implements Serializable {
     private Long id;
     private String toDo;
     private boolean status;
+
 
     public String getToDo() {
         return toDo;
@@ -36,4 +40,6 @@ public class ToDo implements Serializable {
     public int mStatus(){
         return getStatus() ? 1 : 0;
     }
+
+
 }

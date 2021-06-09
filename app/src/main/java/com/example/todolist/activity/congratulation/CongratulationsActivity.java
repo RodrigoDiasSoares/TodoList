@@ -1,4 +1,4 @@
-package com.example.todolist.activity;
+package com.example.todolist.activity.congratulation;
 
 import androidx.appcompat.app.AppCompatActivity;
 

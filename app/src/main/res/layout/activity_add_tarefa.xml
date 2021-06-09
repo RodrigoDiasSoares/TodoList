@@ -5,9 +5,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/gradient"
+    android:background="@drawable/note_book"
     android:orientation="vertical"
-    tools:context=".activity.AddTarefaActivity">
+    tools:context=".activity.addTarefas.AddTarefaActivity">
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/layoutTextToDo"
@@ -15,8 +15,8 @@
         android:layout_height="68dp"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginTop="16dp"
-        android:textColorHint="@color/white"
+        android:layout_marginTop="76dp"
+        android:textColorHint="@color/black"
         android:background="@drawable/shape_aredondado"
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
@@ -27,10 +27,12 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/textToDo"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Digite uma tarefa"
-            android:textColor="@color/white"/>
+            android:textColor="@color/black"/>
 
     </com.google.android.material.textfield.TextInputLayout>
     <Button
@@ -38,10 +40,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="SALVAR"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
         android:background="@drawable/shape_aredondado"
         android:layout_gravity="end"
         android:layout_marginEnd="16dp"
         android:layout_marginTop="16dp"
-        />
+        android:layout_marginRight="16dp" />
 </LinearLayout>
