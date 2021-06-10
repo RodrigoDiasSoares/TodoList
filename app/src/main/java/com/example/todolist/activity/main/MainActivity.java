@@ -2,6 +2,7 @@ package com.example.todolist.activity.main;
 
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -43,7 +44,6 @@ public class MainActivity extends AppCompatActivity implements RecyclerItemClick
     private Dialog dialog;
     private TextView textViewProgress;
     private ProgressBar progressBar;
-    int i = 0;
     private MainViewModel viewModel;
 
     @Override
@@ -52,11 +52,6 @@ public class MainActivity extends AppCompatActivity implements RecyclerItemClick
         setContentView(R.layout.activity_main);
         recyclerView = findViewById(R.id.recyclerViewToDoList);
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
-        dialog = new Dialog(this);
-        carregarLista();
-
-
-
         viewModel.getmChecked().observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(@Nullable Boolean allChecked) {
@@ -69,7 +64,16 @@ public class MainActivity extends AppCompatActivity implements RecyclerItemClick
         viewModel.getmProgress().observe(this, new Observer<Integer>() {
             @Override
             public void onChanged(Integer i) {
-                progress(i);
+                resultado(i);
+            }
+        });
+
+        viewModel.getmEditTodo().observe(this, new Observer<ToDo>() {
+            @Override
+            public void onChanged(ToDo toDo) {
+                Intent intent = new Intent(getApplicationContext(), AddTarefaActivity.class);
+                intent.putExtra("selectedToDo", toDo);
+                startActivity(intent);
             }
         });
 
@@ -84,7 +88,6 @@ public class MainActivity extends AppCompatActivity implements RecyclerItemClick
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 Intent intent = new Intent(getApplicationContext(), AddTarefaActivity.class);
                 startActivity(intent);
             }
@@ -92,16 +95,27 @@ public class MainActivity extends AppCompatActivity implements RecyclerItemClick
     }
 
     public final void carregarLista(){
+        ToDoDAO toDoDAO = new ToDoDAO(this);
         adapter = new AdapterToDoList(toDoList);
         adapter.adicionarObservador(viewModel);
-        ToDoDAO toDoDAO = new ToDoDAO(this);
-        toDoList = toDoDAO.listar();
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(adapter);
+        toDoList = toDoDAO.listar();
         Log.e("INFO","Lista Carregada com sucesso");
+    }
 
+    public void resultado(int porcentagem){
+        dialog = new Dialog(this);
+        dialog.setContentView(R.layout.test);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        textViewProgress = dialog.findViewById(R.id.textProgress);
+        progressBar = dialog.findViewById(R.id.progress_circular);
+        textViewProgress.setText(String.valueOf(porcentagem));
+        progressBar.setMax(viewModel.getmQtdToDo().getValue());
+        progressBar.setProgress(porcentagem);
+        dialog.show();
     }
 
     public void congratulation(){
@@ -110,29 +124,16 @@ public class MainActivity extends AppCompatActivity implements RecyclerItemClick
         finish();
     }
 
-    public void progress(int qtdToDo){
-            String valor = String.valueOf(qtdToDo);
-            Double porcentagem = (100 / Double.parseDouble(valor));
-            if (i != porcentagem.intValue() && i != 0){
-                i += porcentagem.intValue();
-                resultado(i);
-            }
-    }
-
-    public void resultado(int porcentagem){
-        dialog.setContentView(R.layout.test);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        textViewProgress = dialog.findViewById(R.id.textProgress);
-        progressBar = dialog.findViewById(R.id.progress_circular);
-        textViewProgress.setText(String.valueOf(porcentagem));
-        progressBar.setProgress(porcentagem);
-        dialog.show();
-    }
-
     @Override
     protected void onStart() {
         carregarLista();
         super.onStart();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        carregarLista();
     }
 
     @Override

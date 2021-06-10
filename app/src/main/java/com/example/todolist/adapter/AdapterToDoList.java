@@ -29,8 +29,9 @@ import java.util.Observable;
 
 public class AdapterToDoList extends Adapter<AdapterToDoList.MyViewHolder> {
     private List<ToDo> toDoList;
-    MainViewModel main = new MainViewModel();
+    private MainViewModel main = new MainViewModel();
     private ArrayList<Observador> observadores = new ArrayList<>();
+    private List<ToDo> toDoChecked = new ArrayList<>();
 
 
 
@@ -51,10 +52,13 @@ public class AdapterToDoList extends Adapter<AdapterToDoList.MyViewHolder> {
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         ToDo toDo = toDoList.get(position);
         holder.itenList.setText(toDo.getToDo());
+        holder.layoutDelete.setMinimumHeight(holder.layoutABorrar.getMinimumHeight());
         if(toDo.getStatus()){
             holder.checkBox.setBackgroundResource(R.drawable.ic_check);
+            toDoChecked.add(toDo);
         }else{
             holder.checkBox.setBackgroundResource(R.drawable.ic_square);
+            toDoChecked.remove(toDo);
         }
 
         holder.checkBox.setOnClickListener(new View.OnClickListener() {
@@ -66,30 +70,31 @@ public class AdapterToDoList extends Adapter<AdapterToDoList.MyViewHolder> {
                     holder.checkBox.setBackgroundResource(R.drawable.ic_square);
                     toDoList.get(position).setStatus(false);
                     dao.atualizar(toDoList.get(position));
-                    atualizar(allChecked(),toDoList.size());
+                    toDoChecked.remove(toDoList.get(position));
+                    atualizar(allChecked(), toDoList.size(), progress(toDoChecked));
                 }else{
                     holder.checkBox.setBackgroundResource(R.drawable.ic_check);
                     toDoList.get(position).setStatus(true);
                     dao.atualizar(toDoList.get(position));
-                    atualizar(allChecked(),toDoList.size());
+                    toDoChecked.add(toDoList.get(position));
+                    atualizar(allChecked(), toDoList.size(), progress(toDoChecked));
                 }
             }
         });
 
-        holder.edit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-            }
-        });
 
         holder.delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                delete(toDo);
             }
         });
         Log.i("tarefaAdapter", toDo.getToDo());
+    }
+
+    public List<ToDo> progress(List<ToDo> checked){
+        return toDoChecked;
     }
 
     @Override
@@ -97,9 +102,17 @@ public class AdapterToDoList extends Adapter<AdapterToDoList.MyViewHolder> {
         return this.toDoList.size();
     }
 
+    public void editar(ToDo toDo){
+        notificarObservadores(toDo);
+    }
+
+    public void delete(ToDo toDo){
+        notificarObservadores(toDo.getId().intValue());
+    }
+
     public void atualizar(boolean tarefasCumpridas,
-                          int qtdTodo){
-        notificarObservadores(tarefasCumpridas,qtdTodo);
+                          int qtdTodo, List<ToDo> toDoChecked){
+        notificarObservadores(tarefasCumpridas,qtdTodo, toDoChecked);
     }
 
     public void adicionarObservador(Observador observador){
@@ -113,23 +126,25 @@ public class AdapterToDoList extends Adapter<AdapterToDoList.MyViewHolder> {
     }
 
     public void notificarObservadores(boolean tarefasCumpridas,
-                                      int qtdTodo){
+                                      int qtdTodo, List<ToDo> toDoChecked){
         for(Observador o: observadores){
-            o.atualizar(tarefasCumpridas,qtdTodo);
+            o.atualizar(tarefasCumpridas,qtdTodo,toDoChecked);
+        }
+    }
+    public void notificarObservadores(int id){
+        for(Observador o: observadores){
+            o.deletar(id);
+        }
+    }
+    public void notificarObservadores(ToDo toDo){
+        for(Observador o: observadores){
+            o.editTodo(toDo);
         }
     }
 
     public boolean allChecked(){
-        int count = 0;
 
-        for(int i = 0; i < toDoList.size();i++){
-            if (toDoList.get(i).getStatus()){
-                count++;
-            }else{
-                count--;
-            }
-        }
-        if(count != 0 && count == toDoList.size()){
+        if(toDoChecked.size() != 0 && toDoChecked.size() == toDoList.size()){
             return true;
         }else {
             return false;
@@ -147,16 +162,16 @@ public class AdapterToDoList extends Adapter<AdapterToDoList.MyViewHolder> {
     public class MyViewHolder extends RecyclerView.ViewHolder{
         TextView itenList;
         Button checkBox;
-        Button edit;
         Button delete;
         public RelativeLayout layoutABorrar;
+        public RelativeLayout layoutDelete;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
             itenList = itemView.findViewById(R.id.textViewAdapter);
             checkBox = itemView.findViewById(R.id.checkboxAdapter);
             layoutABorrar = itemView.findViewById(R.id.layoutABorrar);
-            edit = itemView.findViewById(R.id.btnEdit);
+            layoutDelete = itemView.findViewById(R.id.layoutDelete);
             delete = itemView.findViewById(R.id.btnDelete);
         }
 
