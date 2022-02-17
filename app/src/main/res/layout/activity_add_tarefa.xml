@@ -27,12 +27,13 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/textToDo"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
             android:hint="Digite uma tarefa"
-            android:textColor="@color/black"/>
+            android:textColor="@color/black"
+            tools:ignore="TouchTargetSizeCheck" />
 
     </com.google.android.material.textfield.TextInputLayout>
     <Button
