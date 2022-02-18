@@ -1,9 +1,12 @@
 package com.example.todolist.activity.main;
 
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -16,12 +19,13 @@ import com.example.todolist.adapter.AdapterToDoList;
 import com.example.todolist.helper.RecyclerItemClickListener;
 import com.example.todolist.helper.ToDoDAO;
 import com.example.todolist.model.ToDo;
-import com.example.todolist.observer.Observador;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -33,6 +37,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,11 +50,18 @@ public class MainActivity extends AppCompatActivity implements RecyclerItemClick
     private TextView textViewProgress;
     private ProgressBar progressBar;
     private MainViewModel viewModel;
+    private String[] appPermission = {
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.SEND_SMS,
+            Manifest.permission.CAMERA
+    };
+    public static final int CODIGO_PERMISSOES_REQUERIDAS = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        pedindoPermissao();
         recyclerView = findViewById(R.id.recyclerViewToDoList);
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
         viewModel.getmChecked().observe(this, new Observer<Boolean>() {
@@ -92,6 +104,13 @@ public class MainActivity extends AppCompatActivity implements RecyclerItemClick
                 startActivity(intent);
             }
         });
+
+        if(pedindoPermissao()){
+            Toast.makeText(this,"Nem todas as permissoes foram ativas",Toast.LENGTH_SHORT).show();
+        }else{
+            Toast.makeText(this,"Nem todas as permissoes foram ativas",Toast.LENGTH_SHORT).show();
+        }
+
     }
 
     public final void carregarLista(){
@@ -142,5 +161,24 @@ public class MainActivity extends AppCompatActivity implements RecyclerItemClick
 
         }
     }
+
+    public boolean pedindoPermissao(){
+        List<String> permissoes = new ArrayList<>();
+
+        for(String permissao : appPermission){
+            if(ContextCompat.checkSelfPermission(this,permissao) != PackageManager.PERMISSION_GRANTED){
+                permissoes.add(permissao);
+            }
+        }
+
+        if(!permissoes.isEmpty()){
+            ActivityCompat.requestPermissions(this,
+                    permissoes.toArray(new String[permissoes.size()]),CODIGO_PERMISSOES_REQUERIDAS);
+            return false;
+        }
+
+        return true;
+    }
+
 
 }

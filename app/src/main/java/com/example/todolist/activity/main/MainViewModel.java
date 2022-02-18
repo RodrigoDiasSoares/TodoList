@@ -1,19 +1,8 @@
 package com.example.todolist.activity.main;
 
-import android.app.Dialog;
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.todolist.R;
-import com.example.todolist.activity.addTarefas.AddTarefaActivity;
 import com.example.todolist.model.ToDo;
 import com.example.todolist.observer.Observador;
 
